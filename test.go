@@ -86,15 +86,15 @@ func prin(i interface{}) {
 	}
 }
 
-type Operator struct {
-	Name     string
-	Codename string
-	Class    string
-	NBanner  int
+type Student struct {
+	Name  string
+	ID    int
+	Year  int
+	Major string
 }
 
-func (op Operator) String() string {
-	return fmt.Sprintf("Operator %v has codename %v  and belong to %v section, he/she has %v year(s) of experience", op.Name, op.Codename, op.Class, op.NBanner)
+func (st Student) String() string {
+	return fmt.Sprintf("Student %v has ID %v  and belong to %v major, he/she has %v year(s) student", st.Name, st.ID, st.Year, st.Major)
 }
 
 func main() {
@@ -136,8 +136,8 @@ func main() {
 	prin(21.1)
 	prin("Halo")
 	prin(21 + 16i)
-	hairdresser := Operator{"Susie Glitter", "Goldenglow", "Caster", 4}
-	inquisitor := Operator{"Irene", "Irene", "Guard", 3}
-	fmt.Println(hairdresser)
-	fmt.Println(inquisitor)
+	dat := Student{"Tien Dat", 20110011, 4, "Cong nghe phan mem"}
+	tho := Student{"Tan Tho", 20110211, 4, "Cong nghe phan mem"}
+	fmt.Println(dat)
+	fmt.Println(tho)
 }
