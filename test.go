@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math"
+	"time"
 )
 
 type Vecto struct {
@@ -141,6 +142,30 @@ func (lst *List[T]) Print() {
 	fmt.Println()
 
 }
+func say(s string) {
+	for i := 0; i < 5; i++ {
+		time.Sleep(100 * time.Millisecond)
+		fmt.Println(s)
+	}
+}
+
+// Channel
+func sum(s []int, c chan int) {
+	sum := 0
+	for _, v := range s {
+		sum += v
+	}
+	c <- sum
+}
+
+func fibonanci(n int, c chan int) {
+	x, y := 0, 1
+	for i := 0; i < n; i++ {
+		c <- x
+		x, y = y, x+y
+	}
+	close(c)
+}
 
 func main() {
 	defer fmt.Println("It's end here.")
@@ -193,4 +218,28 @@ func main() {
 	l.Push(3)
 	l.Push(4)
 	l.Print()
+	//Time
+	go say("Halo")
+	say("Hela")
+	//Channel
+	str := []int{1, 2, 3, 4, 5, 6, 7, 8}
+	c := make(chan int)
+	go sum(str, c)
+	go sum(str[3:], c)
+	c1, c2 := <-c, <-c
+	fmt.Println(c1, c2)
+	//Buffered channel
+	//ch := make(chan int, 3)
+	ch := make(chan int, 4)
+	ch <- 4
+	ch <- 3
+	ch <- 2
+	ch <- 1
+	fmt.Println(<-ch)
+	//Range and close
+	chanrangeclose := make(chan int, 10)
+	go fibonanci(cap(chanrangeclose), chanrangeclose)
+	for i := range chanrangeclose {
+		fmt.Printf("[%v]\n", i)
+	}
 }
