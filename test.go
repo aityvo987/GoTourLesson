@@ -94,7 +94,52 @@ type Student struct {
 }
 
 func (st Student) String() string {
-	return fmt.Sprintf("Student %v has ID %v  and belong to %v major, he/she has %v year(s) student", st.Name, st.ID, st.Year, st.Major)
+	return fmt.Sprintf("Student %v has ID %v  and belong to %v major, he/she is %v year(s) student", st.Name, st.ID, st.Major, st.Year)
+}
+
+//Generic
+
+func Equal[T comparable](s []T, t T) int {
+	for i, v := range s {
+		if v == t {
+			return i
+		}
+	}
+	return -1
+}
+
+type List[T any] struct {
+	head *Element[T]
+}
+
+type Element[E any] struct {
+	next *Element[E]
+	val  E
+}
+
+func (lst *List[T]) Push(t T) {
+	if lst.head == nil {
+
+		lst.head = &Element[T]{val: t}
+	} else {
+		p := lst.head
+		for p.next != nil {
+			p = p.next
+		}
+		p.next = &Element[T]{val: t}
+	}
+}
+func (lst *List[T]) Print() {
+	e := lst.head
+	for {
+		fmt.Print("->", e.val)
+		if e.next == nil {
+			break
+		}
+		e = e.next
+	}
+	fmt.Println()
+
 }
 
 func main() {
@@ -140,4 +185,12 @@ func main() {
 	tho := Student{"Tan Tho", 20110211, 4, "Cong nghe phan mem"}
 	fmt.Println(dat)
 	fmt.Println(tho)
+	//Generic
+	g := []int{1, 2, 3, 4, 5}
+	fmt.Printf("Position of %v in %v is %v\n", 5, g, Equal(g, 5))
+	var l List[int]
+	l.Push(2)
+	l.Push(3)
+	l.Push(4)
+	l.Print()
 }
