@@ -167,6 +167,19 @@ func fibonanci(n int, c chan int) {
 	close(c)
 }
 
+func fibonanciS(c, quit chan int) {
+	x, y := 0, 1
+	for {
+		select {
+		case c <- x:
+			x, y = y, y+x
+		case <-quit:
+			fmt.Println("Quit")
+			return
+		}
+	}
+}
+
 func main() {
 	defer fmt.Println("It's end here.")
 	var a, b int = 2, 1
@@ -242,4 +255,31 @@ func main() {
 	for i := range chanrangeclose {
 		fmt.Printf("[%v]\n", i)
 	}
+	//Select
+	chanS := make(chan int)
+	quitS := make(chan int)
+	go func() {
+		for i := 0; i < 10; i++ {
+			fmt.Println(<-chanS)
+		}
+		quitS <- 0
+	}()
+	fibonanciS(chanS, quitS)
+
+	//Select default
+	tick := time.Tick(1 * time.Second)
+	boom := time.After(5 * time.Second)
+	for {
+		select {
+		case <-tick:
+			fmt.Println("Tick")
+		case <-boom:
+			fmt.Println("KABOOM!!!")
+			return
+		default:
+			fmt.Println(".")
+			time.Sleep(250 * time.Millisecond)
+		}
+	}
+
 }
