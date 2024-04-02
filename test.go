@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math"
+	"sync"
 	"time"
 )
 
@@ -180,6 +181,25 @@ func fibonanciS(c, quit chan int) {
 	}
 }
 
+//Mutex
+
+type SafeCounter struct {
+	mu sync.Mutex
+	v  map[string]int
+}
+
+func (c *SafeCounter) Inc(key string) {
+	c.mu.Lock()
+	c.v[key]++
+	c.mu.Unlock()
+}
+
+func (c *SafeCounter) Value(key string) int {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.v[key]
+}
+
 func main() {
 	defer fmt.Println("It's end here.")
 	var a, b int = 2, 1
@@ -269,17 +289,30 @@ func main() {
 	//Select default
 	tick := time.Tick(1 * time.Second)
 	boom := time.After(5 * time.Second)
+detonate:
 	for {
 		select {
 		case <-tick:
 			fmt.Println("Tick")
 		case <-boom:
 			fmt.Println("KABOOM!!!")
-			return
+			// return
+			break detonate
 		default:
 			fmt.Println(".")
 			time.Sleep(250 * time.Millisecond)
 		}
 	}
+	// Mutex
+	csafe := SafeCounter{v: make(map[string]int)}
+	for i := 0; i < 101; i++ {
+		if i%2 == 0 {
+			go csafe.Inc("Even")
+		} else {
+			go csafe.Inc("Odd")
+		}
 
+	}
+	time.Sleep(1 * time.Second)
+	fmt.Println("Result key:", csafe.Value("Even"), csafe.Value("Odd"))
 }
