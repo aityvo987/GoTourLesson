@@ -14,6 +14,8 @@ type Vecto struct {
 type MyFloat float64
 
 func swap(x, y int) (int, int) {
+	var a interface{}
+	fmt.Println(a)
 	return y, x
 }
 
@@ -200,8 +202,26 @@ func (c *SafeCounter) Value(key string) int {
 	return c.v[key]
 }
 
+type SafeRW struct {
+	mu sync.RWMutex
+	v  map[string]int
+}
+
+func (rw *SafeRW) Write(key string) {
+	rw.mu.Lock()
+	rw.v[key]++
+	rw.mu.Unlock()
+}
+
+func (rw *SafeRW) Read(key string) int {
+	rw.mu.RLock()
+	defer rw.mu.RUnlock()
+	return rw.v[key]
+}
+
 func main() {
 	defer fmt.Println("It's end here.")
+
 	var a, b int = 2, 1
 	fmt.Printf("Your number before swapping: %v and %v\n", a, b)
 	a, b = swap(3, 4)
@@ -287,8 +307,8 @@ func main() {
 	fibonanciS(chanS, quitS)
 
 	//Select default
-	tick := time.Tick(1 * time.Second)
-	boom := time.After(5 * time.Second)
+	tick := time.Tick(100 * time.Millisecond)
+	boom := time.After(300 * time.Millisecond)
 detonate:
 	for {
 		select {
@@ -315,4 +335,8 @@ detonate:
 	}
 	time.Sleep(1 * time.Second)
 	fmt.Println("Result key:", csafe.Value("Even"), csafe.Value("Odd"))
+
+	rwsafe := SafeRW{v: make(map[string]int)}
+	rwsafe.Write("Something")
+	fmt.Println("Result RW key:", rwsafe.Read("Something"))
 }
